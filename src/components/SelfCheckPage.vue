@@ -43,6 +43,34 @@
 
               <button type="submit" class="btn btn-success w-100">Submit Record</button>
             </form>
+
+            <div class="mt-4 pt-4 border-top">
+              <h4 class="mb-3">Email Record with Attachment</h4>
+              <div v-if="emailSuccess" class="alert alert-success">{{ emailSuccess }}</div>
+              <div v-if="emailError" class="alert alert-danger">{{ emailError }}</div>
+
+              <form ref="emailForm" @submit.prevent="sendEmailWithAttachment">
+                <div class="mb-3">
+                  <label class="form-label">Recipient Email</label>
+                  <input type="email" name="user_email" class="form-control" v-model="recipientEmail" required />
+                </div>
+                
+                <div class="mb-3">
+                  <label class="form-label">Message / Details</label>
+                  <textarea name="message" class="form-control" rows="2" v-model="emailMessage"></textarea>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">Attach File (PDF, Image, Doc)</label>
+                  <input type="file" name="my_file" class="form-control" required />
+                </div>
+
+                <button type="submit" class="btn btn-outline-primary w-100" :disabled="isSending">
+                  {{ isSending ? 'Sending...' : 'Send Email with Attachment' }}
+                </button>
+              </form>
+            </div>
+
           </div>
         </div>
       </div>
@@ -73,6 +101,7 @@
 
 <script setup>
 import { ref, watch } from 'vue';
+import emailjs from '@emailjs/browser';
 
 const props = defineProps({
   currentUser: Object
@@ -85,6 +114,13 @@ const notes = ref('');
 const errorMsg = ref('');
 const successMsg = ref('');
 const recommendations = ref([]);
+
+const emailForm = ref(null);
+const recipientEmail = ref('');
+const emailMessage = ref('');
+const isSending = ref(false);
+const emailSuccess = ref('');
+const emailError = ref('');
 
 const generateRecommendations = () => {
   if (mood.value === null || sleep.value === null || stress.value === null) return;
@@ -140,6 +176,32 @@ const saveCheckin = () => {
   localStorage.setItem('checkins', JSON.stringify(checkins));
   successMsg.value = 'Well-being entry submitted and saved!';
   
+  emailMessage.value = `Mood: ${mood.value}, Sleep: ${sleep.value}, Stress: ${stress.value}, Notes: ${notes.value}`;
+  if (props.currentUser && props.currentUser.email) {
+    recipientEmail.value = props.currentUser.email;
+  }
+
   notes.value = '';
+};
+
+const sendEmailWithAttachment = () => {
+  emailSuccess.value = '';
+  emailError.value = '';
+  isSending.value = true;
+
+  const serviceID = 'service_7qbzy1y';
+  const templateID = 'template_4nhlndl';
+  const publicKey = 'lEjybZvUZLoBWI0lR';
+
+  emailjs.sendForm(serviceID, templateID, emailForm.value, publicKey)
+    .then(() => {
+      emailSuccess.value = 'Email sent successfully with attachment!';
+    })
+    .catch((err) => {
+      emailError.value = 'Failed to send email: ' + (err.text || 'Unknown error');
+    })
+    .finally(() => {
+      isSending.value = false;
+    });
 };
 </script>

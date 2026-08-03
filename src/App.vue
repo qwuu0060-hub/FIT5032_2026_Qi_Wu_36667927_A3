@@ -1,10 +1,25 @@
 <template>
   <div>
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <div class="bg-secondary text-white py-1 px-3 d-flex justify-content-between align-items-center small" role="region" aria-label="Accessibility Controls">
+      <div>
+        <span class="me-2 fw-bold">Accessibility Tools:</span>
+        <button @click="setFontSize('normal')" class="btn btn-sm btn-dark me-1" :class="{'active': fontSizeLevel === 'normal'}" aria-label="Normal Text Size">A</button>
+        <button @click="setFontSize('large')" class="btn btn-sm btn-dark me-1" :class="{'active': fontSizeLevel === 'large'}" aria-label="Large Text Size">A+</button>
+        <button @click="setFontSize('xlarge')" class="btn btn-sm btn-dark me-2" :class="{'active': fontSizeLevel === 'xlarge'}" aria-label="Extra Large Text Size">A++</button>
+      </div>
+      <div>
+        <button @click="toggleHighContrast" class="btn btn-sm btn-warning fw-bold" aria-label="Toggle High Contrast Mode">
+          {{ isHighContrast ? 'Disable High Contrast' : 'High Contrast Mode' }}
+        </button>
+      </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark" role="navigation" aria-label="Main Navigation">
       <div class="container">
-        <a class="navbar-brand" href="#" @click.prevent="navigate('home')">Mind Charity</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <a class="navbar-brand" href="#" @click.prevent="navigate('home')" aria-label="Mind Charity Home">Mind Charity</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navMenu">
@@ -21,6 +36,9 @@
             <li class="nav-item">
               <a class="nav-link" href="#" @click.prevent="navigate('reviews')">Reviews</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click.prevent="navigate('map')">Nearby Support</a>
+            </li>
             <li v-if="currentUser" class="nav-item">
               <a class="nav-link" href="#" @click.prevent="navigate('trends')">My Trends</a>
             </li>
@@ -32,13 +50,13 @@
             </li>
           </ul>
           <div class="d-flex align-items-center">
-            <span v-if="currentUser" class="text-light me-3 small">
+            <span v-if="currentUser" class="text-light me-3 small" aria-live="polite">
               Session: {{ currentUser.email }} ({{ currentUser.role }})
             </span>
-            <button v-if="currentUser" @click="handleLogout" class="btn btn-outline-danger btn-sm">
+            <button v-if="currentUser" @click="handleLogout" class="btn btn-outline-danger btn-sm" aria-label="Logout of account">
               Logout
             </button>
-            <button v-else @click="navigate('auth')" class="btn btn-outline-light btn-sm">
+            <button v-else @click="navigate('auth')" class="btn btn-outline-light btn-sm" aria-label="Login or register account">
               Login/Register
             </button>
           </div>
@@ -46,12 +64,9 @@
       </div>
     </nav>
 
-    <!-- Main Content Stream -->
-    <main class="py-4">
-      <!-- HOME VIEW -->
+    <main id="main-content" class="py-4" tabindex="-1" role="main">
       <div v-if="currentView === 'home'">
         <div class="container">
-          <!-- Welcome Screen for Guest Users -->
           <div v-if="!currentUser" class="p-5 mb-4 bg-light rounded-3 text-center">
             <div class="container-fluid py-5">
               <h1 class="display-5 fw-bold text-dark">We stand with you.</h1>
@@ -59,13 +74,12 @@
                 Our charity supports underrepresented groups facing mental health challenges. Access private, anonymous self-checks, select peer support guides, and consult aggregated reviews of validated mental health experts.
               </p>
               <div class="d-flex justify-content-center gap-3 mt-4">
-                <button @click="navigate('auth')" class="btn btn-primary btn-lg">Get Started</button>
-                <button @click="handleAnonymous" class="btn btn-outline-secondary btn-lg">Explore Anonymously</button>
+                <button @click="navigate('auth')" class="btn btn-primary btn-lg" aria-label="Get Started with an account">Get Started</button>
+                <button @click="handleAnonymous" class="btn btn-outline-secondary btn-lg" aria-label="Explore Anonymously without registering">Explore Anonymously</button>
               </div>
             </div>
           </div>
 
-          <!-- Dynamic Dashboard for Logged-in Users -->
           <div v-else class="row justify-content-center">
             <div class="col-md-12 mb-4">
               <div class="card bg-primary text-white border-0 p-4 rounded shadow-sm">
@@ -74,55 +88,57 @@
               </div>
             </div>
             
-            <!-- Row 1 - Card 1: Daily Check-in -->
             <div class="col-md-4 mb-4">
               <div class="card h-100 border-0 shadow-sm text-center p-4">
-                <h4>Daily Check-in</h4>
+                <h3>Daily Check-in</h3>
                 <p class="text-muted small">Record your mood, sleep, and stress parameters to receive instant advice.</p>
-                <button @click="navigate('selfcheck')" class="btn btn-outline-primary mt-auto">New Check-in</button>
+                <button @click="navigate('selfcheck')" class="btn btn-outline-primary mt-auto" aria-label="Start a new daily check-in">New Check-in</button>
               </div>
             </div>
 
-            <!-- Row 1 - Card 2: Book Session -->
             <div class="col-md-4 mb-4">
               <div class="card h-100 border-0 shadow-sm text-center p-4">
-                <h4>Book Session</h4>
+                <h3>Book Session</h3>
                 <p class="text-muted small">Schedule private standard sessions with our professional psychological support team.</p>
-                <button @click="navigate('booking')" class="btn btn-outline-primary mt-auto">Book Now</button>
+                <button @click="navigate('booking')" class="btn btn-outline-primary mt-auto" aria-label="Book a consultation session now">Book Now</button>
               </div>
             </div>
 
-            <!-- Row 1 - Card 3: Reviews (NEWLY ADDED HERE) -->
             <div class="col-md-4 mb-4">
               <div class="card h-100 border-0 shadow-sm text-center p-4">
-                <h4>Platform Reviews</h4>
+                <h3>Platform Reviews</h3>
                 <p class="text-muted small">Read anonymous feedback and view aggregated rating scores of our expert consultants.</p>
-                <button @click="navigate('reviews')" class="btn btn-outline-primary mt-auto">View Reviews</button>
+                <button @click="navigate('reviews')" class="btn btn-outline-primary mt-auto" aria-label="View platform reviews and ratings">View Reviews</button>
               </div>
             </div>
             
-            <!-- Row 2 - Card 4: My Trends -->
             <div class="col-md-4 mb-4">
               <div class="card h-100 border-0 shadow-sm text-center p-4">
-                <h4>My Trends</h4>
+                <h3>My Trends</h3>
                 <p class="text-muted small">Visualize your psychological parameters over time to find recovery patterns.</p>
-                <button @click="navigate('trends')" class="btn btn-outline-primary mt-auto">View Tracker</button>
+                <button @click="navigate('trends')" class="btn btn-outline-primary mt-auto" aria-label="View my well-being trend tracker">View Tracker</button>
               </div>
             </div>
 
-            <!-- Row 2 - Card 5: Support Board -->
             <div class="col-md-4 mb-4">
               <div class="card h-100 border-0 shadow-sm text-center p-4">
-                <h4>Support Board</h4>
+                <h3>Support Board</h3>
                 <p class="text-muted small">Share anonymous, uplifting messages and find peer strength in our community.</p>
-                <button @click="navigate('community')" class="btn btn-outline-primary mt-auto">Visit Community</button>
+                <button @click="navigate('community')" class="btn btn-outline-primary mt-auto" aria-label="Visit community support board">Visit Community</button>
+              </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+              <div class="card h-100 border-0 shadow-sm text-center p-4">
+                <h3>Nearby Support</h3>
+                <p class="text-muted small">Locate nearby psychological service centers and campus health hubs on an interactive map.</p>
+                <button @click="navigate('map')" class="btn btn-outline-primary mt-auto" aria-label="Find nearby health support centers">Find Centers</button>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- COMPONENT ROUTING -->
       <div v-else-if="currentView === 'auth'">
         <AuthPage @auth-success="handleAuthSuccess" />
       </div>
@@ -139,6 +155,10 @@
         <ReviewPage :currentUser="currentUser" />
       </div>
 
+      <div v-else-if="currentView === 'map'">
+        <ServiceMapPage />
+      </div>
+
       <div v-else-if="currentView === 'trends'">
         <TrendPage :currentUser="currentUser" @go-checkin="navigate('selfcheck')" />
       </div>
@@ -147,26 +167,24 @@
         <CommunityPage />
       </div>
 
-      <!-- ADMIN PORTAL VIEW -->
       <div v-else-if="currentView === 'admin' && currentUser && currentUser.role === 'admin'">
         <div class="container">
           <h2 class="mb-4 text-primary">Admin System Portal</h2>
           
-          <!-- Booking Approval Manager -->
           <div class="card mb-4 border-0 shadow-sm">
             <div class="card-body p-4">
-              <h4 class="card-title mb-3">Consultation Booking Requests Management</h4>
+              <h3 class="card-title mb-3 fs-4">Consultation Booking Requests Management</h3>
               <div v-if="allBookings.length === 0" class="text-muted small">No booking requests found.</div>
-              <table v-else class="table table-hover align-middle">
+              <table v-else class="table table-hover align-middle" aria-label="Booking requests table">
                 <thead>
                   <tr>
-                    <th>User identity</th>
-                    <th>Counselor</th>
-                    <th>Date & Time Slot</th>
-                    <th>Priority</th>
-                    <th>Reason Note</th>
-                    <th>Status</th>
-                    <th>Action</th>
+                    <th scope="col">User identity</th>
+                    <th scope="col">Counselor</th>
+                    <th scope="col">Date & Time Slot</th>
+                    <th scope="col">Priority</th>
+                    <th scope="col">Reason Note</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -186,7 +204,7 @@
                       </span>
                     </td>
                     <td>
-                      <button v-if="b.status !== 'Approved'" @click="approveBooking(idx)" class="btn btn-success btn-sm">
+                      <button v-if="b.status !== 'Approved'" @click="approveBooking(idx)" class="btn btn-success btn-sm" :aria-label="'Approve booking for ' + b.user">
                         Approve Booking
                       </button>
                       <span v-else class="text-muted small">Verified</span>
@@ -197,15 +215,14 @@
             </div>
           </div>
 
-          <!-- Account Logs -->
           <div class="card mb-4 border-0 shadow-sm">
             <div class="card-body p-4">
-              <h4 class="card-title mb-3">Registered Accounts</h4>
-              <table class="table table-striped">
+              <h3 class="card-title mb-3 fs-4">Registered Accounts</h3>
+              <table class="table table-striped" aria-label="Registered accounts table">
                 <thead>
                   <tr>
-                    <th>User Identifier</th>
-                    <th>System Role</th>
+                    <th scope="col">User Identifier</th>
+                    <th scope="col">System Role</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -222,19 +239,18 @@
             </div>
           </div>
 
-          <!-- Check-in Audit Logs -->
           <div class="card mb-4 border-0 shadow-sm">
             <div class="card-body p-4">
-              <h4 class="card-title mb-3">User State Check-in History</h4>
-              <table class="table table-striped">
+              <h3 class="card-title mb-3 fs-4">User State Check-in History</h3>
+              <table class="table table-striped" aria-label="Check-in audit logs table">
                 <thead>
                   <tr>
-                    <th>Identity</th>
-                    <th>Mood Score</th>
-                    <th>Sleep Score</th>
-                    <th>Stress Score</th>
-                    <th>Personal Note</th>
-                    <th>Entry Date</th>
+                    <th scope="col">Identity</th>
+                    <th scope="col">Mood Score</th>
+                    <th scope="col">Sleep Score</th>
+                    <th scope="col">Stress Score</th>
+                    <th scope="col">Personal Note</th>
+                    <th scope="col">Entry Date</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -251,26 +267,25 @@
             </div>
           </div>
 
-          <!-- Rating Audit Logs -->
           <div class="card border-0 shadow-sm">
             <div class="card-body p-4">
-              <h4 class="card-title mb-3">User Feedback & Rating Records</h4>
+              <h3 class="card-title mb-3 fs-4">User Feedback & Rating Records</h3>
               <div v-if="allReviews.length === 0" class="text-muted small">No dynamic feedback reviews logged.</div>
-              <table v-else class="table table-striped align-middle">
+              <table v-else class="table table-striped align-middle" aria-label="Feedback and review records table">
                 <thead>
                   <tr>
-                    <th>User Identity</th>
-                    <th>Counselor</th>
-                    <th>Score Granted</th>
-                    <th>Review Feedback Text</th>
-                    <th>Submission Date</th>
+                    <th scope="col">User Identity</th>
+                    <th scope="col">Counselor</th>
+                    <th scope="col">Score Granted</th>
+                    <th scope="col">Review Feedback Text</th>
+                    <th scope="col">Submission Date</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr v-for="(r, idx) in allReviews" :key="idx">
                     <td>{{ r.user }}</td>
                     <td>{{ r.counselor }}</td>
-                    <td><span class="text-warning">{{ '★'.repeat(r.rating) }}</span> ({{ r.rating }}/5)</td>
+                    <td><span class="text-warning" aria-hidden="true">{{ '★'.repeat(r.rating) }}</span> <span class="visually-hidden">{{ r.rating }} out of 5 stars</span> ({{ r.rating }}/5)</td>
                     <td>{{ r.comments }}</td>
                     <td>{{ r.date }}</td>
                   </tr>
@@ -287,12 +302,15 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { auth } from './firebase';
+import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
 import AuthPage from './components/AuthPage.vue';
 import SelfCheckPage from './components/SelfCheckPage.vue';
 import BookingPage from './components/BookingPage.vue';
 import ReviewPage from './components/ReviewPage.vue';
 import CommunityPage from './components/CommunityPage.vue';
 import TrendPage from './components/TrendPage.vue';
+import ServiceMapPage from './components/ServiceMapPage.vue';
 
 const currentView = ref('home');
 const currentUser = ref(null);
@@ -301,11 +319,57 @@ const allCheckins = ref([]);
 const allBookings = ref([]);
 const allReviews = ref([]);
 
-const loadSession = () => {
-  const logged = localStorage.getItem('currentUser');
-  if (logged) {
-    currentUser.value = JSON.parse(logged);
+const isHighContrast = ref(false);
+const fontSizeLevel = ref('normal');
+
+const toggleHighContrast = () => {
+  isHighContrast.value = !isHighContrast.value;
+  if (isHighContrast.value) {
+    document.body.classList.add('high-contrast');
+  } else {
+    document.body.classList.remove('high-contrast');
   }
+};
+
+const setFontSize = (size) => {
+  fontSizeLevel.value = size;
+  document.body.classList.remove('font-large', 'font-xlarge');
+  if (size === 'large') {
+    document.body.classList.add('font-large');
+  } else if (size === 'xlarge') {
+    document.body.classList.add('font-xlarge');
+  }
+};
+
+const loadSession = () => {
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      const localUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const matchedLocal = users.find(u => u.email === user.email);
+      const userRole = matchedLocal ? matchedLocal.role : (localUser.role || 'user');
+      
+      currentUser.value = {
+        email: user.email,
+        uid: user.uid,
+        role: userRole,
+        isAnonymous: false
+      };
+      localStorage.setItem('currentUser', JSON.stringify(currentUser.value));
+    } else {
+      const logged = localStorage.getItem('currentUser');
+      if (logged) {
+        const parsed = JSON.parse(logged);
+        if (parsed.isAnonymous) {
+          currentUser.value = parsed;
+        } else {
+          currentUser.value = null;
+        }
+      } else {
+        currentUser.value = null;
+      }
+    }
+  });
 };
 
 const navigate = (view) => {
@@ -331,7 +395,12 @@ const handleAnonymous = () => {
   navigate('home');
 };
 
-const handleLogout = () => {
+const handleLogout = async () => {
+  try {
+    await firebaseSignOut(auth);
+  } catch (error) {
+    console.error(error);
+  }
   currentUser.value = null;
   localStorage.removeItem('currentUser');
   navigate('home');

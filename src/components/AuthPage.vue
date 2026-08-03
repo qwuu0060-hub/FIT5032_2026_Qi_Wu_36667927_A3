@@ -114,8 +114,8 @@
                 <div class="invalid-feedback">{{ errors.consent }}</div>
               </div>
 
-              <button type="submit" class="btn btn-primary w-100 mb-3 fw-semibold py-2">
-                {{ isLogin ? 'Login' : 'Register' }}
+              <button type="submit" class="btn btn-primary w-100 mb-3 fw-semibold py-2" :disabled="loading">
+                {{ loading ? 'Processing...' : (isLogin ? 'Login' : 'Register') }}
               </button>
             </form>
 
@@ -141,6 +141,8 @@
 
 <script setup>
 import { ref, reactive, computed } from 'vue';
+import { auth } from '../firebase';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 
 const emit = defineEmits(['auth-success']);
 
@@ -150,6 +152,7 @@ const password = ref('');
 const confirmPassword = ref('');
 const role = ref('user');
 const consent = ref(false);
+const loading = ref(false);
 
 const showPassword = ref(false);
 const showConfirmPassword = ref(false);
@@ -249,7 +252,7 @@ const resetForm = () => {
   Object.keys(touched).forEach(key => touched[key] = false);
 };
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
   Object.keys(touched).forEach(key => touched[key] = true);
   errorMessage.value = '';
   successMessage.value = '';
@@ -259,32 +262,54 @@ const handleSubmit = () => {
     return;
   }
 
-  const users = JSON.parse(localStorage.getItem('users') || '[]');
+  loading.value = true;
 
-  if (isLogin.value) {
-    const user = users.find(u => u.email === email.value && u.password === password.value);
-    if (!user) {
-      errorMessage.value = 'Invalid email or password.';
-      return;
-    }
-    emit('auth-success', { email: user.email, role: user.role, isAnonymous: false });
-  } else {
-    const exists = users.some(u => u.email === email.value);
-    if (exists) {
-      errorMessage.value = 'This email is already registered. Please login or use a different email.';
-      return;
-    }
+  try {
+    if (isLogin.value) {
+      const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value);
+      const user = userCredential.user;
 
-    users.push({
-      email: email.value,
-      password: password.value,
-      role: role.value
-    });
-    localStorage.setItem('users', JSON.stringify(users));
-    
-    successMessage.value = 'Registration successful! You can now login.';
-    isLogin.value = true;
-    resetForm();
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const matchedUser = users.find(u => u.email === user.email);
+      const userRole = matchedUser ? matchedUser.role : 'user';
+
+      emit('auth-success', { email: user.email, role: userRole, uid: user.uid, isAnonymous: false });
+    } else {
+      const userCredential = await createUserWithEmailAndPassword(auth, email.value, password.value);
+      const user = userCredential.user;
+
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      if (!users.some(u => u.email === email.value)) {
+        users.push({
+          email: email.value,
+          role: role.value,
+          uid: user.uid
+        });
+        localStorage.setItem('users', JSON.stringify(users));
+      }
+
+      successMessage.value = 'Registration successful! You can now login.';
+      isLogin.value = true;
+      resetForm();
+    }
+  } catch (error) {
+    switch (error.code) {
+      case 'auth/email-already-in-use':
+        errorMessage.value = 'This email is already registered. Please login or use a different email.';
+        break;
+      case 'auth/invalid-credential':
+      case 'auth/user-not-found':
+      case 'auth/wrong-password':
+        errorMessage.value = 'Invalid email or password.';
+        break;
+      case 'auth/weak-password':
+        errorMessage.value = 'Password should be at least 6 characters.';
+        break;
+      default:
+        errorMessage.value = error.message;
+    }
+  } finally {
+    loading.value = false;
   }
 };
 

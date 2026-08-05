@@ -1,5 +1,42 @@
 <template>
   <div class="container my-5">
+    <!-- BR F.1 Interactive Chart Section -->
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+          <div>
+            <h3 class="fs-4 mb-0">Interactive Well-being Trends</h3>
+            <small class="text-muted">Horizontal axis shows check-in sequence & date</small>
+          </div>
+          <div class="btn-group btn-group-sm">
+            <button 
+              type="button" 
+              :class="['btn', activeChartMetric === 'all' ? 'btn-dark' : 'btn-outline-dark']"
+              @click="activeChartMetric = 'all'"
+            >All Metrics</button>
+            <button 
+              type="button" 
+              :class="['btn', activeChartMetric === 'mood' ? 'btn-success' : 'btn-outline-success']"
+              @click="activeChartMetric = 'mood'"
+            >Mood</button>
+            <button 
+              type="button" 
+              :class="['btn', activeChartMetric === 'sleep' ? 'btn-info' : 'btn-outline-info']"
+              @click="activeChartMetric = 'sleep'"
+            >Sleep</button>
+            <button 
+              type="button" 
+              :class="['btn', activeChartMetric === 'stress' ? 'btn-danger' : 'btn-outline-danger']"
+              @click="activeChartMetric = 'stress'"
+            >Stress</button>
+          </div>
+        </div>
+        <div class="position-relative w-100" style="overflow-x: auto;">
+          <canvas ref="chartCanvas" height="220" style="width: 100%; min-width: 500px; display: block;"></canvas>
+        </div>
+      </div>
+    </div>
+
     <div class="card shadow-sm border-0 mb-4">
       <div class="card-body p-4">
         <h2 class="mb-4 fs-3">My Well-being Tracker</h2>
@@ -12,7 +49,7 @@
           <div class="row">
             <div v-for="(c, idx) in myCheckins.slice(-5)" :key="idx" class="col-md-12 mb-4 border-bottom pb-3">
               <div class="d-flex justify-content-between mb-2">
-                <strong class="text-primary">Record Date: {{ c.date }}</strong>
+                <strong class="text-primary">Record #{{ myCheckins.length - 4 + idx > 0 ? myCheckins.length - 4 + idx : idx + 1 }} - Date: {{ c.date }}</strong>
                 <span class="text-muted fst-italic" v-if="c.notes">"{{ c.notes }}"</span>
               </div>
               <div class="row align-items-center mb-1">
@@ -49,7 +86,6 @@
       <div class="card-body p-4">
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
           <h3 class="fs-4 mb-0">Interactive Check-in History Table</h3>
-          <!-- BR E.4 Data Export Buttons for User -->
           <div class="d-flex gap-2">
             <button @click="exportCSV" class="btn btn-outline-success btn-sm" aria-label="Export my check-in history as CSV file">
               📥 Export CSV
@@ -119,7 +155,9 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, nextTick } from 'vue';
+import { db } from '../firebase';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 
 const props = defineProps({
   currentUser: Object
@@ -131,6 +169,9 @@ const currentPage = ref(1);
 const pageSize = 10;
 const sortKey = ref('');
 const sortOrder = ref('asc');
+
+const activeChartMetric = ref('all');
+const chartCanvas = ref(null);
 
 const filters = ref({
   date: '',
@@ -145,25 +186,143 @@ const defaultMockCheckins = [
   { email: 'Anonymous', mood: 4, sleep: 4, stress: 2, notes: 'Took a short break today', date: '2026/07/31' },
   { email: 'Anonymous', mood: 2, sleep: 1, stress: 5, notes: 'Insomnia at night', date: '2026/07/30' },
   { email: 'Anonymous', mood: 5, sleep: 5, stress: 1, notes: 'Great day overall', date: '2026/07/29' },
-  { email: 'Anonymous', mood: 3, sleep: 3, stress: 3, notes: 'Normal routine', date: '2026/07/28' },
-  { email: 'Anonymous', mood: 4, sleep: 3, stress: 2, notes: 'Went for walking', date: '2026/07/27' },
-  { email: 'Anonymous', mood: 2, sleep: 2, stress: 4, notes: 'Stressful meeting', date: '2026/07/26' },
-  { email: 'Anonymous', mood: 1, sleep: 2, stress: 5, notes: 'Felt hopeless', date: '2026/07/25' },
-  { email: 'Anonymous', mood: 4, sleep: 4, stress: 2, notes: 'Talked with friends', date: '2026/07/24' },
-  { email: 'Anonymous', mood: 3, sleep: 3, stress: 3, notes: 'Okayish day', date: '2026/07/23' },
-  { email: 'Anonymous', mood: 5, sleep: 4, stress: 1, notes: 'Completed assignment', date: '2026/07/22' },
-  { email: 'Anonymous', mood: 2, sleep: 3, stress: 4, notes: 'Late night study', date: '2026/07/21' }
+  { email: 'Anonymous', mood: 3, sleep: 3, stress: 3, notes: 'Normal routine', date: '2026/07/28' }
 ];
 
-onMounted(() => {
-  const all = JSON.parse(localStorage.getItem('checkins') || '[]');
+const loadCheckinsData = async () => {
+  let list = [];
   const email = props.currentUser ? props.currentUser.email : 'Anonymous';
-  let filtered = all.filter(c => c.email === email);
 
-  if (filtered.length === 0) {
-    filtered = defaultMockCheckins;
+  try {
+    if (db) {
+      const checkinsRef = collection(db, 'checkins');
+      let q;
+      if (email && email !== 'Anonymous') {
+        q = query(checkinsRef, where('email', '==', email));
+      } else {
+        q = checkinsRef;
+      }
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        list.push(doc.data());
+      });
+    }
+  } catch (err) {
+    console.error('Firestore read failed:', err);
   }
-  myCheckins.value = filtered;
+
+  if (list.length === 0) {
+    const allLocal = JSON.parse(localStorage.getItem('checkins') || '[]');
+    list = allLocal.filter(c => c.email === email || email === 'Anonymous');
+  }
+
+  if (list.length === 0) {
+    list = defaultMockCheckins;
+  }
+
+  // Ensure items are ordered by creation / entry index
+  myCheckins.value = list;
+};
+
+const renderChart = () => {
+  if (!chartCanvas.value) return;
+  const canvas = chartCanvas.value;
+  const ctx = canvas.getContext('2d');
+  
+  const width = canvas.width = canvas.parentElement.clientWidth || 600;
+  const height = canvas.height = 220;
+
+  ctx.clearRect(0, 0, width, height);
+
+  const rawRecords = [...myCheckins.value].slice(-10);
+  if (rawRecords.length === 0) return;
+
+  const padding = 45;
+  const chartWidth = width - padding * 2;
+  const chartHeight = height - padding * 2;
+
+  // Draw background grid lines (1 to 5)
+  ctx.strokeStyle = '#e9ecef';
+  ctx.lineWidth = 1;
+  for (let i = 1; i <= 5; i++) {
+    const y = height - padding - (i / 5) * chartHeight;
+    ctx.beginPath();
+    ctx.moveTo(padding, y);
+    ctx.lineTo(width - padding, y);
+    ctx.stroke();
+
+    ctx.fillStyle = '#6c757d';
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(i.toString(), padding - 10, y + 4);
+  }
+
+  const total = rawRecords.length;
+  const stepX = total > 1 ? chartWidth / (total - 1) : 0;
+
+  const getX = (idx) => {
+    return total > 1 ? padding + idx * stepX : padding + chartWidth / 2;
+  };
+
+  // Draw X-axis labels: #Index (MM/DD)
+  rawRecords.forEach((r, idx) => {
+    const x = getX(idx);
+    ctx.fillStyle = '#6c757d';
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'center';
+    
+    const dateStr = r.date ? r.date.slice(5) : '';
+    const label = `#${idx + 1} (${dateStr})`;
+    ctx.fillText(label, x, height - padding + 20);
+  });
+
+  const drawLine = (key, color) => {
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+
+    rawRecords.forEach((r, idx) => {
+      const x = getX(idx);
+      const val = Number(r[key]) || 0;
+      const y = height - padding - (val / 5) * chartHeight;
+      if (idx === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    rawRecords.forEach((r, idx) => {
+      const x = getX(idx);
+      const val = Number(r[key]) || 0;
+      const y = height - padding - (val / 5) * chartHeight;
+      ctx.beginPath();
+      ctx.arc(x, y, 4, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  };
+
+  if (activeChartMetric.value === 'all' || activeChartMetric.value === 'mood') {
+    drawLine('mood', '#198754');
+  }
+  if (activeChartMetric.value === 'all' || activeChartMetric.value === 'sleep') {
+    drawLine('sleep', '#0dcaf0');
+  }
+  if (activeChartMetric.value === 'all' || activeChartMetric.value === 'stress') {
+    drawLine('stress', '#dc3545');
+  }
+};
+
+onMounted(async () => {
+  await loadCheckinsData();
+  nextTick(() => {
+    renderChart();
+  });
+});
+
+watch([activeChartMetric, myCheckins], () => {
+  nextTick(() => {
+    renderChart();
+  });
 });
 
 const filteredCheckins = computed(() => {
@@ -214,7 +373,6 @@ watch(filters, () => {
   currentPage.value = 1;
 }, { deep: true });
 
-// --- BR E.4 Data Export Methods ---
 const triggerDownload = (content, filename, contentType) => {
   const blob = new Blob([content], { type: contentType });
   const url = URL.createObjectURL(blob);

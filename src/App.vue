@@ -2,6 +2,11 @@
   <div>
     <a href="#main-content" class="skip-link">Skip to main content</a>
 
+    <!-- Offline Alert Banner -->
+    <div v-if="isOffline" class="bg-danger text-white text-center py-2 fw-bold small shadow-sm" role="alert" aria-live="assertive">
+      ⚠️ You are currently OFFLINE. All operations and check-ins will be safely cached to Local Storage and synced when reconnected.
+    </div>
+
     <div class="bg-secondary text-white py-1 px-3 d-flex justify-content-between align-items-center small" role="region" aria-label="Accessibility Controls">
       <div>
         <span class="me-2 fw-bold">Accessibility Tools:</span>
@@ -144,7 +149,7 @@
       </div>
 
       <div v-else-if="currentView === 'selfcheck'">
-        <SelfCheckPage :currentUser="currentUser" />
+        <SelfCheckPage :currentUser="currentUser" :isOffline="isOffline" />
       </div>
 
       <div v-else-if="currentView === 'booking'">
@@ -301,7 +306,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { auth } from './firebase';
 import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
 import AuthPage from './components/AuthPage.vue';
@@ -321,6 +326,13 @@ const allReviews = ref([]);
 
 const isHighContrast = ref(false);
 const fontSizeLevel = ref('normal');
+
+// Offline Feature 1: Global Network Listener
+const isOffline = ref(!navigator.onLine);
+
+const updateOnlineStatus = () => {
+  isOffline.value = !navigator.onLine;
+};
 
 const toggleHighContrast = () => {
   isHighContrast.value = !isHighContrast.value;
@@ -417,5 +429,12 @@ const approveBooking = (index) => {
 
 onMounted(() => {
   loadSession();
+  window.addEventListener('online', updateOnlineStatus);
+  window.addEventListener('offline', updateOnlineStatus);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('online', updateOnlineStatus);
+  window.removeEventListener('offline', updateOnlineStatus);
 });
 </script>

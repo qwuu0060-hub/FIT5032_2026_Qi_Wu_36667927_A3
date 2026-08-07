@@ -321,9 +321,9 @@ const sendEmailWithAttachment = () => {
   emailError.value = '';
   isSending.value = true;
 
-  const serviceID = 'service_7qbzy1y';
-  const templateID = 'template_4nhlndl';
-  const publicKey = 'lEjybZvUZLoBWI0lR';
+  const serviceID = '';
+  const templateID = '';
+  const publicKey = '';
 
   emailjs.sendForm(serviceID, templateID, emailForm.value, publicKey)
     .then(() => {

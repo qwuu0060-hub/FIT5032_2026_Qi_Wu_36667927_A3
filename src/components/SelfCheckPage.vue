@@ -1,66 +1,65 @@
 <template>
   <div class="container my-5">
-    <div class="row">
-      <div class="col-md-6 mb-4">
-        <div class="card shadow-sm border-0">
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
           <div class="card-body p-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-              <h3 class="mb-0">Daily Well-being Check-in</h3>
-              <!-- Network Status Badge -->
-              <span :class="['badge', isOffline ? 'bg-danger' : 'bg-success']">
+            <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+              <h3 class="mb-0 fw-bold fs-4">Daily Well-being Check-in</h3>
+              <span :class="['status-badge', isOffline ? 'status-offline' : 'status-online']">
+                <span class="status-dot"></span>
                 {{ isOffline ? 'Offline Mode' : 'Online Sync Active' }}
               </span>
             </div>
 
-            <!-- Offline Draft Restore Alert -->
-            <div v-if="draftRestored" class="alert alert-info py-2 small d-flex justify-content-between align-items-center">
+            <div v-if="draftRestored" class="alert alert-info py-2 small d-flex justify-content-between align-items-center rounded-3 mb-4">
               <span>📝 Unsaved offline draft restored.</span>
-              <button @click="clearDraft" class="btn btn-link btn-sm text-decoration-none p-0">Discard Draft</button>
+              <button @click="clearDraft" class="btn btn-link btn-sm text-decoration-none p-0 fw-bold">Discard Draft</button>
             </div>
 
             <div v-if="errorMsg" class="alert alert-danger">{{ errorMsg }}</div>
             <div v-if="successMsg" class="alert alert-success">{{ successMsg }}</div>
 
             <form @submit.prevent="saveCheckin">
-              <div class="mb-3">
-                <label class="form-label d-block">1. Mood Level (1 = Low, 5 = Excellent)</label>
-                <div class="btn-group w-100">
+              <div class="mb-4">
+                <label class="form-label fw-bold mb-2">1. Mood Level (1 = Low, 5 = Excellent)</label>
+                <div class="btn-group-rating">
                   <button type="button" v-for="n in 5" :key="'m'+n" 
-                    :class="['btn', mood === n ? 'btn-primary' : 'btn-outline-primary']" 
+                    :class="['btn-rating', mood === n ? 'active-primary' : '']" 
                     @click="mood = n">{{ n }}</button>
                 </div>
               </div>
 
-              <div class="mb-3">
-                <label class="form-label d-block">2. Sleep Quality (1 = Poor, 5 = Excellent)</label>
-                <div class="btn-group w-100">
+              <div class="mb-4">
+                <label class="form-label fw-bold mb-2">2. Sleep Quality (1 = Poor, 5 = Excellent)</label>
+                <div class="btn-group-rating">
                   <button type="button" v-for="n in 5" :key="'sl'+n" 
-                    :class="['btn', sleep === n ? 'btn-primary' : 'btn-outline-primary']" 
+                    :class="['btn-rating', sleep === n ? 'active-primary' : '']" 
                     @click="sleep = n">{{ n }}</button>
                 </div>
               </div>
 
-              <div class="mb-3">
-                <label class="form-label d-block">3. Stress Level (1 = Low, 5 = Extremely High)</label>
-                <div class="btn-group w-100">
+              <div class="mb-4">
+                <label class="form-label fw-bold mb-2">3. Stress Level (1 = Low, 5 = Extremely High)</label>
+                <div class="btn-group-rating">
                   <button type="button" v-for="n in 5" :key="'st'+n" 
-                    :class="['btn', stress === n ? 'btn-danger' : 'btn-outline-danger']" 
+                    :class="['btn-rating', stress === n ? 'active-danger' : '']" 
                     @click="stress = n">{{ n }}</button>
                 </div>
               </div>
 
-              <div class="mb-3">
-                <label class="form-label">Optional Notes (Max 50 characters)</label>
+              <div class="mb-4">
+                <label class="form-label fw-semibold">Optional Notes (Max 50 characters)</label>
                 <input type="text" class="form-control" v-model="notes" placeholder="Auto-saves to local storage draft..." />
               </div>
 
-              <button type="submit" class="btn btn-success w-100" :disabled="isSaving">
+              <button type="submit" class="btn btn-success btn-lg w-100 fw-bold shadow-sm py-3" :disabled="isSaving">
                 {{ isSaving ? 'Processing...' : (isOffline ? 'Save Record Locally (Offline)' : 'Submit Record') }}
               </button>
             </form>
 
-            <div class="mt-4 pt-4 border-top">
-              <h4 class="mb-3">Email Record with Attachment</h4>
+            <div class="mt-5 pt-4 border-top">
+              <h4 class="mb-3 fw-bold fs-5">Email Record with Attachment</h4>
               <div v-if="isOffline" class="alert alert-warning py-2 small">
                 ⚠️ Email sending requires an active internet connection.
               </div>
@@ -69,21 +68,21 @@
 
               <form ref="emailForm" @submit.prevent="sendEmailWithAttachment">
                 <div class="mb-3">
-                  <label class="form-label">Recipient Email</label>
+                  <label class="form-label fw-semibold">Recipient Email</label>
                   <input type="email" name="user_email" class="form-control" v-model="recipientEmail" required />
                 </div>
                 
                 <div class="mb-3">
-                  <label class="form-label">Message / Details</label>
+                  <label class="form-label fw-semibold">Message / Details</label>
                   <textarea name="message" class="form-control" rows="2" v-model="emailMessage"></textarea>
                 </div>
 
                 <div class="mb-3">
-                  <label class="form-label">Attach File (PDF, Image, Doc)</label>
+                  <label class="form-label fw-semibold">Attach File (PDF, Image, Doc)</label>
                   <input type="file" name="my_file" class="form-control" required />
                 </div>
 
-                <button type="submit" class="btn btn-outline-primary w-100" :disabled="isSending || isOffline">
+                <button type="submit" class="btn btn-outline-primary w-100 fw-bold" :disabled="isSending || isOffline">
                   {{ isSending ? 'Sending...' : 'Send Email with Attachment' }}
                 </button>
               </form>
@@ -93,43 +92,43 @@
         </div>
       </div>
 
-      <div class="col-md-6">
-        <div class="card shadow-sm border-0 bg-light mb-4">
+      <div class="col-lg-6">
+        <div class="card shadow-sm border-0 mb-4 bg-white">
           <div class="card-body p-4">
-            <h3 class="mb-4">Dynamic Recommendations</h3>
-            <div v-if="recommendations.length === 0" class="text-muted">
+            <h3 class="mb-4 fw-bold fs-4">Dynamic Recommendations</h3>
+            <div v-if="recommendations.length === 0" class="text-muted small">
               Select scores on the left to instantly see recommendations.
             </div>
             <div v-else>
-              <div class="alert alert-info">
+              <div class="alert alert-info border-0 shadow-sm mb-3">
                 Based on your current input, we suggest:
               </div>
-              <ul class="list-group">
-                <li v-for="(rec, idx) in recommendations" :key="idx" class="list-group-item border-0 shadow-sm mb-2 rounded">
+              <div class="d-flex flex-column gap-2">
+                <div v-for="(rec, idx) in recommendations" :key="idx" class="p-3 bg-light rounded-3 border-start border-4 border-success shadow-sm">
                   {{ rec }}
-                </li>
-              </ul>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         <div class="card shadow-sm border-0 bg-white">
           <div class="card-body p-4">
-            <h3 class="mb-3">GenAI Health Assistant</h3>
-            <p class="text-muted small">Ask our AI for personalized well-being advice or questions about your current state.</p>
+            <h3 class="mb-2 fw-bold fs-4">GenAI Health Assistant</h3>
+            <p class="text-muted small mb-3">Ask our AI for personalized well-being advice or questions about your current state.</p>
             
             <div class="mb-3">
               <textarea class="form-control" rows="3" v-model="aiPrompt" placeholder="e.g. How can I lower my stress when I feel overwhelmed?"></textarea>
             </div>
             
-            <button class="btn btn-dark w-100 mb-3" @click="askGenAI" :disabled="isAiLoading">
+            <button class="btn btn-dark w-100 mb-3 fw-semibold py-2" @click="askGenAI" :disabled="isAiLoading">
               {{ isAiLoading ? 'AI is thinking...' : 'Ask AI Assistant' }}
             </button>
 
             <div v-if="aiError" class="alert alert-danger">{{ aiError }}</div>
-            <div v-if="aiResponse" class="p-3 bg-light rounded border">
+            <div v-if="aiResponse" class="p-3 bg-light rounded-3 border shadow-sm">
               <h6 class="fw-bold mb-2">AI Suggestion:</h6>
-              <p class="mb-0" style="white-space: pre-line;">{{ aiResponse }}</p>
+              <p class="mb-0 small" style="white-space: pre-line;">{{ aiResponse }}</p>
             </div>
           </div>
         </div>
@@ -172,7 +171,6 @@ const isAiLoading = ref(false);
 const aiError = ref('');
 const geminiApiKey = 'YOUR_GEMINI_API_KEY';
 
-// Feature 2: Extended Local Storage Auto-Draft Saving
 const saveDraftLocally = () => {
   const draft = {
     mood: mood.value,
@@ -237,7 +235,6 @@ watch([mood, sleep, stress, notes], () => {
   saveDraftLocally();
 });
 
-// Feature 3: Auto Sync Queued Offline Submissions to Firestore when back online
 const syncOfflineQueueToFirebase = async () => {
   const queue = JSON.parse(localStorage.getItem('offline_checkins_queue') || '[]');
   if (queue.length === 0) return;
@@ -282,7 +279,6 @@ const saveCheckin = async () => {
     createdAt: new Date().toISOString()
   };
 
-  // Save to LocalStorage main history
   const checkins = JSON.parse(localStorage.getItem('checkins') || '[]');
   checkins.push(newEntry);
   localStorage.setItem('checkins', JSON.stringify(checkins));
@@ -296,7 +292,6 @@ const saveCheckin = async () => {
       cacheOfflineEntry(newEntry);
     }
   } else {
-    // Offline submission flow
     cacheOfflineEntry(newEntry);
   }
 
@@ -321,9 +316,9 @@ const sendEmailWithAttachment = () => {
   emailError.value = '';
   isSending.value = true;
 
-  const serviceID = '';
-  const templateID = '';
-  const publicKey = '';
+  const serviceID = 'service_7qbzy1y';
+  const templateID = 'template_4nhlndl';
+  const publicKey = 'lEjybZvUZLoBWI0lR';
 
   emailjs.sendForm(serviceID, templateID, emailForm.value, publicKey)
     .then(() => {

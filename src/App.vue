@@ -23,7 +23,7 @@
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark" role="navigation" aria-label="Main Navigation">
       <div class="container">
-        <a class="navbar-brand" href="#" @click.prevent="navigate('home')" aria-label="Mind Charity Home">Mind Charity</a>
+        <a class="navbar-brand fw-bold text-primary" href="#" @click.prevent="navigate('home')" aria-label="Mind Charity Home">Mind Charity</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -72,15 +72,15 @@
     <main id="main-content" class="py-4" tabindex="-1" role="main">
       <div v-if="currentView === 'home'">
         <div class="container">
-          <div v-if="!currentUser" class="p-5 mb-4 bg-light rounded-3 text-center">
+          <div v-if="!currentUser" class="p-5 mb-4 bg-light rounded-3 text-center shadow-sm">
             <div class="container-fluid py-5">
               <h1 class="display-5 fw-bold text-dark">We stand with you.</h1>
               <p class="col-md-8 mx-auto fs-5 text-secondary">
                 Our charity supports underrepresented groups facing mental health challenges. Access private, anonymous self-checks, select peer support guides, and consult aggregated reviews of validated mental health experts.
               </p>
               <div class="d-flex justify-content-center gap-3 mt-4">
-                <button @click="navigate('auth')" class="btn btn-primary btn-lg" aria-label="Get Started with an account">Get Started</button>
-                <button @click="handleAnonymous" class="btn btn-outline-secondary btn-lg" aria-label="Explore Anonymously without registering">Explore Anonymously</button>
+                <button @click="navigate('auth')" class="btn btn-primary btn-lg fw-bold" aria-label="Get Started with an account">Get Started</button>
+                <button @click="handleAnonymous" class="btn btn-outline-secondary btn-lg fw-bold" aria-label="Explore Anonymously without registering">Explore Anonymously</button>
               </div>
             </div>
           </div>
@@ -95,49 +95,49 @@
             
             <div class="col-md-4 mb-4">
               <div class="card h-100 border-0 shadow-sm text-center p-4">
-                <h3>Daily Check-in</h3>
+                <h3 class="fw-bold fs-4">Daily Check-in</h3>
                 <p class="text-muted small">Record your mood, sleep, and stress parameters to receive instant advice.</p>
-                <button @click="navigate('selfcheck')" class="btn btn-outline-primary mt-auto" aria-label="Start a new daily check-in">New Check-in</button>
+                <button @click="navigate('selfcheck')" class="btn btn-outline-primary mt-auto fw-bold" aria-label="Start a new daily check-in">New Check-in</button>
               </div>
             </div>
 
             <div class="col-md-4 mb-4">
               <div class="card h-100 border-0 shadow-sm text-center p-4">
-                <h3>Book Session</h3>
+                <h3 class="fw-bold fs-4">Book Session</h3>
                 <p class="text-muted small">Schedule private standard sessions with our professional psychological support team.</p>
-                <button @click="navigate('booking')" class="btn btn-outline-primary mt-auto" aria-label="Book a consultation session now">Book Now</button>
+                <button @click="navigate('booking')" class="btn btn-outline-primary mt-auto fw-bold" aria-label="Book a consultation session now">Book Now</button>
               </div>
             </div>
 
             <div class="col-md-4 mb-4">
               <div class="card h-100 border-0 shadow-sm text-center p-4">
-                <h3>Platform Reviews</h3>
+                <h3 class="fw-bold fs-4">Platform Reviews</h3>
                 <p class="text-muted small">Read anonymous feedback and view aggregated rating scores of our expert consultants.</p>
-                <button @click="navigate('reviews')" class="btn btn-outline-primary mt-auto" aria-label="View platform reviews and ratings">View Reviews</button>
+                <button @click="navigate('reviews')" class="btn btn-outline-primary mt-auto fw-bold" aria-label="View platform reviews and ratings">View Reviews</button>
               </div>
             </div>
             
             <div class="col-md-4 mb-4">
               <div class="card h-100 border-0 shadow-sm text-center p-4">
-                <h3>My Trends</h3>
+                <h3 class="fw-bold fs-4">My Trends</h3>
                 <p class="text-muted small">Visualize your psychological parameters over time to find recovery patterns.</p>
-                <button @click="navigate('trends')" class="btn btn-outline-primary mt-auto" aria-label="View my well-being trend tracker">View Tracker</button>
+                <button @click="navigate('trends')" class="btn btn-outline-primary mt-auto fw-bold" aria-label="View my well-being trend tracker">View Tracker</button>
               </div>
             </div>
 
             <div class="col-md-4 mb-4">
               <div class="card h-100 border-0 shadow-sm text-center p-4">
-                <h3>Support Board</h3>
+                <h3 class="fw-bold fs-4">Support Board</h3>
                 <p class="text-muted small">Share anonymous, uplifting messages and find peer strength in our community.</p>
-                <button @click="navigate('community')" class="btn btn-outline-primary mt-auto" aria-label="Visit community support board">Visit Community</button>
+                <button @click="navigate('community')" class="btn btn-outline-primary mt-auto fw-bold" aria-label="Visit community support board">Visit Community</button>
               </div>
             </div>
 
             <div class="col-md-4 mb-4">
               <div class="card h-100 border-0 shadow-sm text-center p-4">
-                <h3>Nearby Support</h3>
+                <h3 class="fw-bold fs-4">Nearby Support</h3>
                 <p class="text-muted small">Locate nearby psychological service centers and campus health hubs on an interactive map.</p>
-                <button @click="navigate('map')" class="btn btn-outline-primary mt-auto" aria-label="Find nearby health support centers">Find Centers</button>
+                <button @click="navigate('map')" class="btn btn-outline-primary mt-auto fw-bold" aria-label="Find nearby health support centers">Find Centers</button>
               </div>
             </div>
           </div>
@@ -174,11 +174,11 @@
 
       <div v-else-if="currentView === 'admin' && currentUser && currentUser.role === 'admin'">
         <div class="container">
-          <h2 class="mb-4 text-primary">Admin System Portal</h2>
+          <h2 class="mb-4 text-primary fw-bold">Admin System Portal</h2>
           
           <div class="card mb-4 border-0 shadow-sm">
             <div class="card-body p-4">
-              <h3 class="card-title mb-3 fs-4">Consultation Booking Requests Management</h3>
+              <h3 class="card-title mb-3 fs-4 fw-bold">Consultation Booking Requests Management</h3>
               <div v-if="allBookings.length === 0" class="text-muted small">No booking requests found.</div>
               <table v-else class="table table-hover align-middle" aria-label="Booking requests table">
                 <thead>
@@ -222,7 +222,7 @@
 
           <div class="card mb-4 border-0 shadow-sm">
             <div class="card-body p-4">
-              <h3 class="card-title mb-3 fs-4">Registered Accounts</h3>
+              <h3 class="card-title mb-3 fs-4 fw-bold">Registered Accounts</h3>
               <table class="table table-striped" aria-label="Registered accounts table">
                 <thead>
                   <tr>
@@ -246,7 +246,7 @@
 
           <div class="card mb-4 border-0 shadow-sm">
             <div class="card-body p-4">
-              <h3 class="card-title mb-3 fs-4">User State Check-in History</h3>
+              <h3 class="card-title mb-3 fs-4 fw-bold">User State Check-in History</h3>
               <table class="table table-striped" aria-label="Check-in audit logs table">
                 <thead>
                   <tr>
@@ -274,7 +274,7 @@
 
           <div class="card border-0 shadow-sm">
             <div class="card-body p-4">
-              <h3 class="card-title mb-3 fs-4">User Feedback & Rating Records</h3>
+              <h3 class="card-title mb-3 fs-4 fw-bold">User Feedback & Rating Records</h3>
               <div v-if="allReviews.length === 0" class="text-muted small">No dynamic feedback reviews logged.</div>
               <table v-else class="table table-striped align-middle" aria-label="Feedback and review records table">
                 <thead>
@@ -327,7 +327,6 @@ const allReviews = ref([]);
 const isHighContrast = ref(false);
 const fontSizeLevel = ref('normal');
 
-// Offline Feature 1: Global Network Listener
 const isOffline = ref(!navigator.onLine);
 
 const updateOnlineStatus = () => {
@@ -438,3 +437,187 @@ onUnmounted(() => {
   window.removeEventListener('offline', updateOnlineStatus);
 });
 </script>
+
+<style>
+:root {
+  --primary-color: #4a7c59;
+  --primary-hover: #3b6346;
+  --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+  --card-shadow-hover: 0 20px 30px -10px rgba(0, 0, 0, 0.1);
+  --radius-lg: 16px;
+  --radius-sm: 10px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: #f4f7f6;
+  color: #2c3e50;
+  transition: font-size 0.2s ease, background-color 0.3s ease;
+}
+
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #000;
+  color: #fff;
+  padding: 8px 16px;
+  z-index: 9999;
+  transition: top 0.2s;
+}
+.skip-link:focus {
+  top: 0;
+}
+
+.card {
+  border: 1px solid rgba(0, 0, 0, 0.04) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-online {
+  background-color: #d1e7dd;
+  color: #0f5132;
+}
+.status-online .status-dot {
+  background-color: #198754;
+  box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.7);
+  animation: pulse-green 2s infinite;
+}
+
+.status-offline {
+  background-color: #f8d7da;
+  color: #842029;
+}
+.status-offline .status-dot {
+  background-color: #dc3545;
+  box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+  animation: pulse-red 2s infinite;
+}
+
+@keyframes pulse-green {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(25, 135, 84, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(25, 135, 84, 0); }
+}
+
+@keyframes pulse-red {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+}
+
+.btn-group-rating {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-rating {
+  flex: 1;
+  border-radius: var(--radius-sm) !important;
+  border: 1.5px solid #dee2e6;
+  background: #ffffff;
+  color: #495057;
+  font-weight: 600;
+  padding: 10px 0;
+  transition: all 0.2s ease;
+}
+
+.btn-rating:hover {
+  background-color: #f8f9fa;
+  border-color: #adb5bd;
+  transform: translateY(-1px);
+}
+
+.btn-rating.active-primary {
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+  border-color: #0a58ca;
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);
+}
+
+.btn-rating.active-danger {
+  background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);
+  border-color: #b02a37;
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+}
+
+.form-control {
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  border: 1px solid #ced4da;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-control:focus {
+  border-color: #6b9080;
+  box-shadow: 0 0 0 0.25rem rgba(107, 144, 128, 0.25);
+}
+
+.navbar {
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+.nav-link {
+  font-weight: 500;
+  border-radius: 6px;
+  padding: 6px 12px !important;
+  transition: background-color 0.2s ease;
+}
+
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.font-large { font-size: 1.15rem !important; }
+.font-xlarge { font-size: 1.3rem !important; }
+
+.high-contrast {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+.high-contrast .card {
+  background-color: #121212 !important;
+  border: 2px solid #ffffff !important;
+  color: #ffffff !important;
+}
+
+.high-contrast .btn-rating {
+  background-color: #000 !important;
+  color: #fff !important;
+  border: 2px solid #fff !important;
+}
+
+.high-contrast .btn-rating.active-primary,
+.high-contrast .btn-rating.active-danger {
+  background-color: #ffff00 !important;
+  color: #000 !important;
+}
+</style>
